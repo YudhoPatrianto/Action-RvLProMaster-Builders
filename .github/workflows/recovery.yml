@@ -29,6 +29,10 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       cpu_model: "$(lscpu | grep 'Model name' | awk -F: '{print $2}' | xargs)"
+      kernel: "$(uname -r)"
+      os: "$(lsb_release -a 2>/dev/null | awk '/Description/ {print $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13}')"
+      disk_total: "$(echo Disk Total: $(df -h $(pwd) | awk 'NR==2 {print $2}'))"
+      disk_free: "$(echo Disk Free: $(df -h $(pwd) | awk 'NR==2 {print $4}'))"
     permissions:
       contents: write
 
@@ -58,4 +62,8 @@ jobs:
       - name: Display All Information
         run: |
           echo ${{ env.cpu_model }}
-          echo ${{ secrets.API }}
+          echo ${{ env.kernel }}
+          echo ${{ env.os }}
+          echo ${{ env.disk_total }}
+          echo ${{ env.disk_free }}
+          echo "${{ secrets.GITHUB_TOKEN}}"
