@@ -1,0 +1,48 @@
+name: Custom Recovery Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      # Selector Recovery
+      select_recovery:
+        description: "Choose Want's Build"
+        required: true
+        type: choice
+        options:
+          - PBRP (android-12.1)
+          - TWRP (twrp-12.1)
+      # Send to telegram bot yes or not
+      send_tg:
+        description: "Send To BOT Telegram?"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  build:
+    name: Builder PBRP
+    runs-on: ubuntu-22-04
+    permissions:
+      contents: write
+
+    steps:
+      # Checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+        # Cleanup
+      - name: Cleanup disk
+        uses: rokibhasansagar/slimhub_actions@main
+
+        # Settings Swap
+      - name: Setting Swaps
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 12
+
+        # Settings Dependencies
+      - name: Installing Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt install repo bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev p7zip p7zip-full -y
