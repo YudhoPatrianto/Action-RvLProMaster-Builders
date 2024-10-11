@@ -28,7 +28,7 @@ jobs:
     name: Builder PBRP
     runs-on: ubuntu-22.04
     env:
-      ENDPOINT: ${{ secrets.API }}
+      cpu_model: "$(lscpu | grep 'Model name' | awk -F: '{print $2}' | xargs)"
     permissions:
       contents: write
 
@@ -57,4 +57,5 @@ jobs:
         # Display Information
       - name: Display All Information
         run: |
-          echo ${{env.ENDPOINT}}
+          echo ${{ env.cpu_model }}
+          echo ${{ secrets.API }}
