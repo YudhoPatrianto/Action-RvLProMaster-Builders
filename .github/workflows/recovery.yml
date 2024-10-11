@@ -23,16 +23,21 @@ on:
         description: "Your Token BOT Telegram (Optional)"
         required: false
 
+      # Token Telegram
+      chat_id:
+        description: "Your Chat ID Telegram (Optional)"
+        required: false
 jobs:
   build:
     name: Builder PBRP
     runs-on: ubuntu-22.04
     env:
+      endpoint: "https://apibot.dhooo.biz.id/bot${{ inputs.token }}"
       cpu_model: "$(lscpu | grep 'Model name' | awk -F: '{print $2}' | xargs)"
       kernel: "$(uname -r)"
       os: "$(lsb_release -a 2>/dev/null | awk '/Description/ {print $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13}')"
       disk_total: "$(echo Disk Total: $(df -h $(pwd) | awk 'NR==2 {print $2}'))"
-      disk_free: "$(echo Disk Free: $(df -h $(pwd) | awk 'NR==2 {print $4}'))"
+      disk_free: "$(df -h $(pwd) | awk 'NR==2 {print $4}')"
     permissions:
       contents: write
 
@@ -56,13 +61,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
-          sudo apt install repo bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev p7zip p7zip-full -y
+          sudo apt install jq repo bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev p7zip p7zip-full -y
 
         # Display Information
-      - name: Display All Information
+      - name: Send All Information
         run: |
-          echo ${{ env.cpu_model }}
-          echo ${{ env.kernel }}
-          echo ${{ env.os }}
-          echo ${{ env.disk_total }}
-          echo ${{ env.disk_free }}
+          if [[ ${{ inputs.send_tg }} == *"true"* ]]; then
+            curl -s -X POST "${{ env.endpoint }}/sendMessage" \
+              -d chat_id=${{ inputs.chat_id }} \
+              -d "text=<pre>System Information</pre>%0A<b>OS: </b><code>${{ env.os }}</code>%0A<b>Kernel: </b><code>${{ env.kernel }}</code>%0A<b>CPU Model: </b><code>${{ env.cpu_model }}</code>%0A<b>Disk Total: </b><code>${{ env.disk_total }}</code>%0A<b>Disk Free: </b><code>${{ env.disk_free }}</code>" \
+              -d parse_mode="Markdown"
+          else
+            echo ${{ env.cpu_model }}
+            echo ${{ env.kernel }}
+            echo ${{ env.os }}
+            echo ${{ env.disk_total }}
+            echo ${{ env.disk_free }}
+          fi
