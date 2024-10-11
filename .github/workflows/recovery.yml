@@ -66,4 +66,3 @@ jobs:
           echo ${{ env.os }}
           echo ${{ env.disk_total }}
           echo ${{ env.disk_free }}
-          echo "${{ secrets.GITHUB_TOKEN}}"
